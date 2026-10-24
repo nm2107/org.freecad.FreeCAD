@@ -1,0 +1,34 @@
+From 0271617790867e05c4553f0a12abf1b1cc9844aa Mon Sep 17 00:00:00 2001
+From: Nicolas MURE <nicolas.mure2019@gmail.com>
+Date: Thu, 22 Oct 2026 23:39:06 +0200
+Subject: [PATCH] fix errored XLink's file property
+
+See https://github.com/FreeCAD/FreeCAD/issues/33468
+
+The dumped XLink's `file` property should point to the relative path of
+the linked `.FCStd` file.
+However, this property is errored as it was considering the current working dir
+from where FC was launched, and this cwd path was concatenated to the
+relative path of the linked file from the current file, which was
+producing a string leading to a non existent path.
+
+Using the `PropertyXLink::getDocumentPath` function restores the correct
+behavior of specifying the relative path to the linked file from the
+current file which contains the link.
+---
+ src/App/PropertyLinks.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/App/PropertyLinks.cpp b/src/App/PropertyLinks.cpp
+index f673fa9d7243..67ffb6b2ea39 100644
+--- a/src/App/PropertyLinks.cpp
++++ b/src/App/PropertyLinks.cpp
+@@ -4212,7 +4212,7 @@ void PropertyXLink::Save(Base::Writer& writer) const
+         writer.Stream() << writer.ind() << "<XLink name=\"" << _pcLink->getExportName();
+     }
+     else {
+-        const char* path = filePath.c_str();
++        const char* path = getDocumentPath();
+         std::string _path;
+         if (exporting) {
+             // Here means we are exporting the owner but not exporting the

@@ -632,6 +632,7 @@ modules:
         paths:
           - patches/OpenSCAD_transfermechanism.patch
           - patches/freecad-appdata.patch
+          - patches/freecad-fix-xlinks-file-property-0271617.patch
       - type: file
         path: openscad.sh
       - type: shell
